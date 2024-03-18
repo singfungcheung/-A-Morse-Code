@@ -93,6 +93,16 @@ void loop() {
         for (int i = 0; morseCode[i] != '\0'; i++) {
                 char morse_char = morseCode[i];
                 Serial.print(morse_char);
+                if (morse_char == '.') {
+                    digitalWrite(LED_BUILTIN, HIGH);  
+                    delay(500);
+                }
+                else {
+                  digitalWrite(LED_BUILTIN, HIGH);  
+                  delay(1000);
+                }
+                digitalWrite(LED_BUILTIN, LOW);  
+                delay(500);
                }
         }
         Serial.println();
