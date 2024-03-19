@@ -5,6 +5,7 @@
 #include <Arduino.h>
 #include <string.h>
 
+#define RED 3
 struct MorseMapping {
     char letter;
     String code;
@@ -23,14 +24,23 @@ MorseMapping morse_map[] = {
     {'9', "----."}, {'0', "-----"}
 };
 
-const String findMorseCode(char input) {
-    // Loop through the Morse code mapping
-    for (int i = 0; i < sizeof(morse_map) / sizeof(morse_map[0]); ++i) {
-        // Check if the input character matches the current character in the mapping
+const String findMorseCode(char input, char morse_input[50]) {
+    // Loop through the morse code map.
+    for (int i = 0; i < sizeof(morse_map) / sizeof(morse_map[0]); i++) {
+        // Check if the input character matches the current character in the map.
         if (morse_map[i].letter == input) {
-            // Return the Morse code corresponding to the input character
+            // Return the corresponding morse code.
+            for (int j = 0; j < sizeof(morse_map[i].code) / sizeof(morse_map[i].code[0]); j++) {
+              morse_input[j] = morse_map[i].code[j];
+            }
             return morse_map[i].code;
         }
+    }
+}
+
+void clearBuffer(char* user_input) {
+    for (int i = 0; i < 50; i++) {
+        user_input[i] = '\0';
     }
 }
 
@@ -45,7 +55,9 @@ const int ledPin = LED_BUILTIN;  // the number of the LED pin
 
 // Variables will change:
 int ledState = LOW;  // ledState used to set the LED
-
+char user_input[50]; // Define a character array to store the input string.
+int index = 0; // Index to keep track of the position in the array
+char morse_input[50];
  
 void setup() {
   /* // This is to print the map to make sure it works.
@@ -60,51 +72,53 @@ void setup() {
   */
   // Initailize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
-
+  pinMode(RED, OUTPUT);
   Serial.begin(9600);
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
   if (Serial.available()) {
-    char user_input[50]; // Define a character array to store the input string
-    int index = 0; // Index to keep track of the position in the array
-
-    // Read characters from the serial buffer until a newline ('\n') character is received or the array is full
-    while (Serial.available() && index < 49) {
-        char incoming_char = Serial.read(); // Read the next character from the serial buffer
-        // Check if the input character is a lowercase letter
+    // Read characters from the serial buffer until a newline ('\n') character is received or the array is full.
+    while (Serial.available() && index < 48) {
+        char incoming_char = Serial.read(); // Read the next character from the serial buffer.
+        // Check if the input character is a lowercase letter, convert to uppercase if it is.
         if (islower(incoming_char)) {
-            // Convert the lowercase letter to uppercase
+            // Convert the lowercase letter to uppercase.
             incoming_char = toupper(incoming_char);
         }
-        user_input[index] = incoming_char; // Store the character in the array
-        index++; // Move to the next position in the array
+        user_input[index] = incoming_char; // Store the character in the array.
+        index++; // Move to the next position in the array.
     }
-    user_input[index] = '\0'; // Null-terminate the string
-
-    // Loop through the characters in the input string and print each character
-    for (int i = 0; user_input[i] != '\0'; i++) {
+    user_input[index] = '\0'; // Null-terminate the string.
+    int input_length = strlen(user_input);
+    // Loop through the characters in the input string and print each character.
+    for (int i = 0; i < input_length; i++) {
         char current_char = user_input[i];
         Serial.print(current_char);
-        const String morseCode = findMorseCode(current_char);
-        for (int i = 0; morseCode[i] != '\0'; i++) {
-                char morse_char = morseCode[i];
+        const String morseCode = findMorseCode(current_char, morse_input);
+        for (int j = 0; morse_input[j] != '\0'; j++) {
+                char morse_char = morse_input[j];
                 Serial.print(morse_char);
                 if (morse_char == '.') {
-                    digitalWrite(LED_BUILTIN, HIGH);  
+                    digitalWrite(LED_BUILTIN, HIGH);
+                    digitalWrite(RED, HIGH);  
                     delay(500);
                 }
                 else {
-                  digitalWrite(LED_BUILTIN, HIGH);  
+                  digitalWrite(LED_BUILTIN, HIGH);
+                  digitalWrite(RED, HIGH);  
                   delay(1000);
                 }
-                digitalWrite(LED_BUILTIN, LOW);  
+                digitalWrite(LED_BUILTIN, LOW);
+                digitalWrite(RED, LOW);  
                 delay(500);
-               }
+            }
+            clearBuffer(morse_input);
+            Serial.print("\n");  
         }
-        Serial.println();
+        clearBuffer(user_input);
+        index = 0; 
     }
+    
 }
