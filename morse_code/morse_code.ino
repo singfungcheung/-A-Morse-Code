@@ -5,7 +5,7 @@
 #include <Arduino.h>
 #include <string.h>
 
-#define RED 3
+#define GREEN 3
 struct MorseMapping {
     char letter;
     String code;
@@ -72,7 +72,7 @@ void setup() {
   */
   // Initailize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(RED, OUTPUT);
+  pinMode(GREEN, OUTPUT);
   Serial.begin(9600);
 
 }
@@ -102,16 +102,16 @@ void loop() {
                 Serial.print(morse_char);
                 if (morse_char == '.') {
                     digitalWrite(LED_BUILTIN, HIGH);
-                    digitalWrite(RED, HIGH);  
+                    digitalWrite(GREEN, HIGH);  
                     delay(500);
                 }
                 else {
                   digitalWrite(LED_BUILTIN, HIGH);
-                  digitalWrite(RED, HIGH);  
+                  digitalWrite(GREEN, HIGH);  
                   delay(1000);
                 }
                 digitalWrite(LED_BUILTIN, LOW);
-                digitalWrite(RED, LOW);  
+                digitalWrite(GREEN, LOW);  
                 delay(500);
             }
             clearBuffer(morse_input);
